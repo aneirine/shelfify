@@ -34,7 +34,9 @@
 
     <!-- Grid of media items -->
     <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        <div th:each="card : ${cards}" class="bg-white rounded-2xl shadow p-4 flex flex-col">
+        <div th:each="card : ${cards}"
+             class="bg-white rounded-2xl shadow p-4 flex flex-col cursor-pointer hover:shadow-lg transition"
+             th:attr="onclick=|openCardPreview('${card.id}')|">
             <div class="mb-4 aspect-w-3 aspect-h-4 relative w-full pb-[133.33%]">
                 <img th:src="${card.coverUrl}"
                      th:alt="${card.title}"
@@ -44,10 +46,34 @@
         </div>
     </div>
 
+    <!-- Модальне вікно створення -->
     <div th:insert="fragments/create-card-modal :: modal"></div>
-    <div th:replace="fragments/flash-message :: flashMessage(${message})"></div>
 
+    <!-- Модальне вікно перегляду картки -->
+    <div th:replace="fragments/card-preview-modal :: cardPreviewModal"></div>
+
+    <!-- Flash message -->
+    <div th:replace="fragments/flash-message :: flashMessage(${message})"></div>
 </main>
+
+<!-- JS -->
+<script>
+    function openCardPreview(id) {
+        fetch(`/library/card/${id}`)
+            .then(res => res.json())
+            .then(card => {
+                document.getElementById('preview-cover').src = card.coverUrl;
+                document.getElementById('preview-cover').alt = card.title;
+                document.getElementById('preview-title').textContent = card.title;
+                document.getElementById('preview-description').textContent = card.description || '';
+                document.getElementById('card-preview-modal').classList.remove('hidden');
+            });
+    }
+
+    function closeCardPreview() {
+        document.getElementById('card-preview-modal').classList.add('hidden');
+    }
+</script>
 
 </body>
 </html>

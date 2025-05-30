@@ -1,11 +1,15 @@
 package com.aneirine.shelfify.cards
 
+import com.aneirine.shelfify.cards.model.Card
 import com.aneirine.shelfify.cards.model.request.CardDto
 import com.aneirine.shelfify.tags.TagService
+import java.util.*
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 
 @Controller
@@ -31,5 +35,11 @@ class CardController(
         cardService.addCard(cardDto);
         redirectAttributes.addFlashAttribute("message", "New card was added")
         return "redirect:/library"
+    }
+
+    @GetMapping("/library/card/{id}")
+    @ResponseBody
+    fun getCardById(@PathVariable id: UUID): Card? {
+        return cardService.getCardById(id)
     }
 }
