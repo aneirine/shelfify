@@ -1,4 +1,4 @@
-package com.aneirine.shelfify.cards.model
+package com.aneirine.shelfify.library.model
 
 import java.util.UUID
 

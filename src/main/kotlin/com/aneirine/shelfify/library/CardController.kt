@@ -1,7 +1,7 @@
-package com.aneirine.shelfify.cards
+package com.aneirine.shelfify.library
 
-import com.aneirine.shelfify.cards.model.Card
-import com.aneirine.shelfify.cards.model.request.CardDto
+import com.aneirine.shelfify.library.model.Card
+import com.aneirine.shelfify.library.model.request.CardDto
 import com.aneirine.shelfify.tags.TagService
 import java.util.*
 import org.springframework.stereotype.Controller

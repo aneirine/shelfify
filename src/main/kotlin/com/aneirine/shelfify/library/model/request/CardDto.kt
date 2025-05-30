@@ -1,4 +1,4 @@
-package com.aneirine.shelfify.cards.model.request
+package com.aneirine.shelfify.library.model.request
 
 data class CardDto(
     val title: String,
