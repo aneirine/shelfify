@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title>Shelfify</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 h-screen flex">
+
+<!-- Sidebar -->
+<aside class="w-64 bg-white border-r p-4">
+    <h2 class="text-xl font-semibold mb-6">Shelfify</h2>
+    <ul>
+        <li class="mb-2">
+            <button class="w-full text-left px-3 py-2 rounded hover:bg-gray-100">All media</button>
+        </li>
+    </ul>
+</aside>
+
+<!-- Main -->
+<main class="flex-1 overflow-auto p-6">
+    <header class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">My Library</h1>
+        <button
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                onclick="document.getElementById('modal').classList.remove('hidden')">
+            Add Item
+        </button>
+    </header>
+
+    <div th:replace="fragments/tag-block :: tagBlock(${tags}, ${tagColorMap})"></div>
+
+    <!-- Grid of media items -->
+    <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <div th:each="card : ${cards}" class="bg-white rounded-2xl shadow p-4 flex flex-col">
+            <div class="mb-4 aspect-w-3 aspect-h-4 relative w-full pb-[133.33%]">
+                <img th:src="${card.coverUrl}"
+                     th:alt="${card.title}"
+                     class="object-cover rounded-lg absolute w-full h-full top-0 left-0"/>
+            </div>
+            <h3 class="text-lg font-medium text-center mt-auto" th:text="${card.title}">Title</h3>
+        </div>
+    </div>
+
+    <div th:insert="fragments/create-card-modal :: modal"></div>
+    <div th:replace="fragments/flash-message :: flashMessage(${message})"></div>
+
+</main>
+
+</body>
+</html>
