@@ -42,3 +42,7 @@ This makes **Shelfify** lightweight and easy to run without setup.
 - JavaScript (interactivity)
 
 ---
+
+## Demo preview
+
+![shelfify-demo-preview.png](shelfify-demo-preview.png)
