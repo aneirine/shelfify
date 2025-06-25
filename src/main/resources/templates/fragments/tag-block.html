@@ -1,0 +1,15 @@
+<div th:fragment="tagBlock(tags, tagColorMap)"
+     class="flex flex-wrap gap-2 mb-6">
+
+    <div th:each="tag : ${tags}"
+         th:text="'#' + ${tag.title}"
+         class="px-3 py-1 rounded-full text-white text-sm font-medium"
+         th:classappend="${tagColorMap[tag.id]}">
+    </div>
+
+<!--    &lt;!&ndash; Add tag button &ndash;&gt;-->
+<!--    <button-->
+<!--            class="px-3 py-1 rounded-full bg-gray-300 hover:bg-gray-400 text-sm font-medium text-gray-800">-->
+<!--        +-->
+<!--    </button>-->
+</div>

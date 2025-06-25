@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" class="">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Shelfify</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 h-screen flex text-gray-900 dark:text-white transition-colors duration-300">
+
+<aside class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 p-4 flex flex-col">
+    <h2 class="text-xl font-semibold mb-6">Shelfify</h2>
+    <ul class="flex-1">
+        <li class="mb-2">
+            <button class="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                All media
+            </button>
+        </li>
+    </ul>
+
+    <div class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
+        <button id="theme-toggle"
+                class="w-full px-3 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors flex items-center justify-center gap-2">
+            <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                 class="w-5 h-5 hidden">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 3v1m0 16v1m8.485-8.485l-.707.707M4.222 4.222l-.707.707m16.97 0l-.707-.707M4.222 19.778l-.707-.707M21 12h-1M4 12H3"/>
+                <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                 class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/>
+            </svg>
+            <span id="theme-text" class="select-none">Theme</span>
+        </button>
+    </div>
+</aside>
+
+<main class="flex-1 overflow-auto p-6">
+    <header class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">My Library</h1>
+        <button
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                onclick="document.getElementById('modal').classList.remove('hidden')">
+            Add Item
+        </button>
+    </header>
+
+    <div th:replace="fragments/tag-block :: tagBlock(${tags}, ${tagColorMap})"></div>
+
+    <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <div th:each="card : ${cards}"
+             class="rounded overflow-hidden relative group cursor-pointer transition-transform duration-300 hover:scale-105"
+             th:attr="onclick=|openCardPreview('${card.id}')|">
+            <div class="relative w-full pb-[166.66%] bg-gray-200 dark:bg-gray-800 rounded-lg overflow-hidden">
+                <img th:src="${card.coverUrl}"
+                     th:alt="${card.title}"
+                     class="absolute inset-0 w-full h-full object-cover transition duration-300 group-hover:brightness-110"/>
+            </div>
+        </div>
+    </div>
+
+    <div th:insert="fragments/create-card-modal :: modal"></div>
+    <div th:replace="fragments/card-preview-modal :: cardPreviewModal"></div>
+    <div th:replace="fragments/flash-message :: flashMessage(${message})"></div>
+</main>
+
+<script>
+    function initTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+            document.documentElement.classList.add('dark');
+            setToggleState(true);
+        } else {
+            document.documentElement.classList.remove('dark');
+            setToggleState(false);
+        }
+    }
+
+    function setToggleState(isDark) {
+        document.getElementById('icon-sun').classList.toggle('hidden', !isDark);
+        document.getElementById('icon-moon').classList.toggle('hidden', isDark);
+        document.getElementById('theme-text').textContent = isDark ? 'Light theme' : 'Dark theme';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initTheme();
+
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            setToggleState(isDark);
+        });
+    });
+
+    function openCardPreview(id) {
+        fetch(`/library/card/${id}`)
+            .then(res => res.json())
+            .then(card => {
+                document.getElementById('preview-cover').src = card.coverUrl;
+                document.getElementById('preview-cover').alt = card.title;
+                document.getElementById('preview-title').textContent = card.title;
+                document.getElementById('preview-id').textContent = card.id;
+                document.getElementById('preview-description').textContent = card.description || '';
+                document.getElementById('card-preview-modal').classList.remove('hidden');
+            });
+    }
+
+    function showToast(message) {
+        const existing = document.getElementById('flash-message');
+        if (existing) existing.remove();
+
+        const toast = document.createElement('div');
+        toast.id = 'flash-message';
+        toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white text-sm px-4 py-2 rounded-xl shadow-lg transition-opacity duration-300';
+        toast.textContent = message;
+
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.add('opacity-0');
+            setTimeout(() => toast.remove(), 300);
+        }, 5000);
+    }
+
+    function closeCardPreview() {
+        document.getElementById('card-preview-modal').classList.add('hidden');
+    }
+
+    function deleteCard() {
+        const id = document.getElementById('preview-id').textContent;
+
+        fetch(`/library/card/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(response => {
+            if (response.ok) {
+                closeCardPreview();
+
+                //document.querySelector(`[data-id="${id}"]`).remove();
+                // or render the whole list
+                location.reload();
+            } else {
+                alert("Error during deletion");
+            }
+        }).catch(err => {
+            console.error("Error:", err);
+            alert("Cannot delete the card");
+        });
+
+    }
+
+    function openEditModal() {
+        closeCardPreview();
+
+        const title = document.getElementById('preview-title').textContent;
+        const description = document.getElementById('preview-description').textContent;
+        const coverUrl = document.getElementById('preview-cover').src;
+        const id = document.getElementById('preview-id').textContent;
+
+        const modal = document.getElementById('modal');
+        modal.classList.remove('hidden');
+
+        modal.querySelector('input[name="title"]').value = title;
+        modal.querySelector('input[name="coverUrl"]').value = coverUrl;
+        modal.querySelector('input[name="cardId"]').value = id;
+
+        console.log("title " + title + " coverUrl " + coverUrl + " id " + id)
+
+        const descField = modal.querySelector('textarea[name="description"]');
+        if (descField) {
+            descField.value = description;
+        }
+    }
+</script>
+
+</body>
+</html>
